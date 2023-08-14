@@ -11,69 +11,76 @@ function ReservationForm({
       ...formData,
       [target.name]: target.value,
     });
-    console.log(formData);
   };
   return (
     <div>
       <form onSubmit={submitHandler}>
-        <label htmlFor="firstName">First name: </label>
+        <label htmlFor="first_name">First name: </label>
         <input
           onChange={changeHandler}
-          name="firstName"
-          id="firstName"
+          name="first_name"
+          id="first_name"
           type="name"
           placeholder=""
-          value={formData.firstName}
+          value={formData.first_name}
+          required
         ></input>
         <br />
-        <label htmlFor="lastName">Last name: </label>
+        <label htmlFor="last_name">Last name: </label>
         <input
           onChange={changeHandler}
-          name="lastName"
-          id="lastName"
+          name="last_name"
+          id="last_name"
           type="name"
           placeholder=""
-          value={formData.lastName}
+          value={formData.last_name}
+          required
         ></input>
         <br />
-        <label htmlFor="phoneNum">Phone number:</label>
+        <label htmlFor="mobile_number">Phone number:</label>
         <input
           onChange={changeHandler}
-          name="phoneNum"
-          id="phoneNum"
-          type="phone number"
+          name="mobile_number"
+          id="mobile_number"
+          type="text"
+          pattern="^\d{3}-\d{3}-\d{4}$"
           placeholder=""
-          value={formData.phoneNum}
+          value={formData.mobile_number}
+          required
         ></input>
         <br />
-        <label htmlFor="date">Date:</label>
+        <label htmlFor="reservation_date">date:</label>
         <input
           onChange={changeHandler}
-          name="date"
-          id="date"
+          name="reservation_date"
+          id="reservation_date"
           type="date"
           placeholder=""
-          value={formData.date}
+          value={formData.reservation_date}
+          required
         ></input>
         <br />
-        <label htmlFor="time">Time:</label>
+        <label htmlFor="reservation_time">Time:</label>
         <input
           onChange={changeHandler}
-          name="time"
-          id="time"
+          name="reservation_time"
+          id="reservation_time"
           type="time"
           placeholder=""
-          value={formData.time}
+          value={formData.reservation_time}
+          required
         ></input>
         <br />
-        <label htmlFor="partySize">Party size (minimum 1):</label>
+        <label htmlFor="people">Party size (minimum 1):</label>
         <input
           onChange={changeHandler}
-          name="partySize"
-          id="partySize"
+          name="people"
+          id="people"
           type="number"
           placeholder=""
-          value={formData.partySize}
+          value={formData.people}
+          required
+          min={1}
         ></input>
         <br />
         <button className="btn btn-primary mr-2" type="submit">

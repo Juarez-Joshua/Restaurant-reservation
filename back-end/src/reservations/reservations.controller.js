@@ -66,6 +66,7 @@ function hasQuery(req, res, next) {
 }
 
 async function list(req, res, _next) {
+  console.log(res.locals.date)
   if (res.locals.date) {
     const data = await reservationsOnDay(res.locals.date);
     data.sort((a, b) => {
