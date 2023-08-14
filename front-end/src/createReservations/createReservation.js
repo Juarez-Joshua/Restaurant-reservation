@@ -35,7 +35,8 @@ function CreateReservation() {
       history.push(`/dashboard?date=${formDataCorrectTypes.reservation_date}`);
     } catch (error) {
       if (error.name !== "AbortError") {
-        setError(error);
+        const message = error.response.data.error
+        setError({message});
       }
       return () => abortController.abort();
     }

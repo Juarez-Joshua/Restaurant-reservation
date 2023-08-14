@@ -1,19 +1,32 @@
-import React from "react";
-
+import React, { useState } from "react";
+import ErrorAlert from "../layout/ErrorAlert";
 function ReservationForm({
   submitHandler,
   cancelHandler,
   formData,
   setFormData,
 }) {
+  const [error, setError] = useState(null)
   const changeHandler = ({ target }) => {
+    if (target.name === "reservation_date") {
+      const newDate = new Date(target.value);
+      if (newDate.getDay() === 2) {
+        setError({message: "Closed on Tuesdays"})
+      }
+      const current = new Date();
+      if(newDate < current){
+        setError({message: "reservation needs to be in the future"})
+      }
+    }
     setFormData({
       ...formData,
       [target.name]: target.value,
     });
   };
+
   return (
     <div>
+      <ErrorAlert error={error} />
       <form onSubmit={submitHandler}>
         <label htmlFor="first_name">First name: </label>
         <input

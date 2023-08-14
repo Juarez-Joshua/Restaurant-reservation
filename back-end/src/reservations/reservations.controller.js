@@ -22,8 +22,9 @@ function hasAllValidProperties(req, _res, next) {
     });
   }
   for (let i = 0; i < VALID_PROPERTIES.length; i++) {
-    if (data[VALID_PROPERTIES[i]] && data[VALID_PROPERTIES[i]] != null)
+    if (data[VALID_PROPERTIES[i]] && data[VALID_PROPERTIES[i]] != null){
       continue;
+    }
     else {
       next({
         status: 400,
@@ -57,6 +58,29 @@ function validateDateTimePeople(req, res, next) {
   }
   next();
 }
+function isNotTuesday(req, _res, next) {
+  const { reservation_date } = req.body.data;
+  const inputDate = new Date(reservation_date);
+  if (inputDate.getDay() === 1) {
+    next({
+      status: 400,
+      message: "We are closed on Tuesdays",
+    });
+  }
+  next();
+}
+function inFuture(req, _res, next) {
+  const { reservation_date } = req.body.data;
+  const inputDate = new Date(reservation_date);
+  const currentDate = new Date();
+  if(inputDate < currentDate){
+    next({
+      status: 400,
+      message: "Reservation date needs to be in the future"
+    })
+  }
+  next();
+}
 function hasQuery(req, res, next) {
   const dateFormat = /\d{4}-\d{2}-\d{2}/;
   if (req.query.date && dateFormat.test(req.query.date)) {
@@ -85,5 +109,11 @@ async function create(req, res, _next) {
 
 module.exports = {
   list: [hasQuery, list],
-  create: [hasAllValidProperties, validateDateTimePeople, create],
+  create: [
+    hasAllValidProperties,
+    validateDateTimePeople,
+    isNotTuesday,
+    inFuture,
+    create,
+  ],
 };

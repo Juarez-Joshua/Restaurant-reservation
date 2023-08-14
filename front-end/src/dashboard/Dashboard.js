@@ -51,7 +51,7 @@ function Dashboard({ date }) {
       </div>
       <ErrorAlert error={reservationsError} />
       {reservations.length > 0
-        ? reservations.map((e) => <FormatReservations reservation={e} />)
+        ? reservations.map((e) => <FormatReservations key ={e.reservation_id}reservation={e} />)
         : "No reservations today"}
       <div>
         <button
