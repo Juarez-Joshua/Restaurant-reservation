@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ErrorAlert from "../layout/ErrorAlert";
+import { today, formatAsTime } from "../utils/date-time";
 function ReservationForm({
   submitHandler,
   cancelHandler,
@@ -8,6 +9,8 @@ function ReservationForm({
 }) {
   const [error, setError] = useState(null)
   const changeHandler = ({ target }) => {
+    setError(null)
+    //if people try to make reservations on past or closed days 
     if (target.name === "reservation_date") {
       const newDate = new Date(target.value);
       if (newDate.getDay() === 2) {
@@ -15,7 +18,15 @@ function ReservationForm({
       }
       const current = new Date();
       if(newDate < current){
-        setError({message: "reservation needs to be in the future"})
+       setError({message: "reservation needs to be in the future"})
+      }
+    }
+    if(target.name === "reservation_time"){
+      const openingTime = new Date(`${today()}T10:30:00`)
+      const checkTime = new Date(`${today()}T${formatAsTime(target.value)}:00`);
+      const closingTime = new Date(`${today()}T21:30`)
+      if(openingTime > checkTime || closingTime < checkTime){
+        setError({message: "Our reservation hours are between 10:30AM and 9:30PM"})
       }
     }
     setFormData({

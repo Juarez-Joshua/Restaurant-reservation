@@ -3,7 +3,7 @@ import ReservationForm from "./ReservationForm";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import axios from "axios";
 import ErrorAlert from "../layout/ErrorAlert";
-
+import {today, formatAsTime} from "../utils/date-time"
 function CreateReservation() {
   //empty form w keys needed
   const initialData = {
@@ -28,6 +28,14 @@ function CreateReservation() {
       ...formData,
       people: Number(formData.people),
     };
+    if(formData.reservation_date === today()){
+      const currentTime = new Date();
+      const closingTime = new Date(`${today()}T21:30:00`);
+      const reservationTime = new Date(`${today()}T${formatAsTime(formData.reservation_time)}:00`)
+      if(currentTime > reservationTime || closingTime < reservationTime){
+        setError({message: `Reservation for today must be between ${currentTime} && ${closingTime}`})
+      }
+    }
     try {
       await axios.post(`http://localhost:5001/reservations`, {
         data: formDataCorrectTypes,
@@ -35,8 +43,8 @@ function CreateReservation() {
       history.push(`/dashboard?date=${formDataCorrectTypes.reservation_date}`);
     } catch (error) {
       if (error.name !== "AbortError") {
-        const message = error.response.data.error
-        setError({message});
+        const message = error.response.data.error;
+        // setError({ message });
       }
       return () => abortController.abort();
     }
