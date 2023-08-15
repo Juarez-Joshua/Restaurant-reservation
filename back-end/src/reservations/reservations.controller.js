@@ -81,6 +81,16 @@ function inFuture(req, _res, next) {
   }
   next();
 }
+function withinHours(req,_res,next){
+  const {reservation_time} = req.body.data
+  if(reservation_time < "10:30" || reservation_time > "21:30"){
+    next({
+      status: 400,
+      message:"not within hours"
+    })
+  }
+  next(); 
+}
 function hasQuery(req, res, next) {
   const dateFormat = /\d{4}-\d{2}-\d{2}/;
   if (req.query.date && dateFormat.test(req.query.date)) {
@@ -114,6 +124,7 @@ module.exports = {
     validateDateTimePeople,
     isNotTuesday,
     inFuture,
+    withinHours,
     create,
   ],
 };
