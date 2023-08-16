@@ -22,10 +22,9 @@ function hasAllValidProperties(req, _res, next) {
     });
   }
   for (let i = 0; i < VALID_PROPERTIES.length; i++) {
-    if (data[VALID_PROPERTIES[i]] && data[VALID_PROPERTIES[i]] != null){
+    if (data[VALID_PROPERTIES[i]] && data[VALID_PROPERTIES[i]] != null) {
       continue;
-    }
-    else {
+    } else {
       next({
         status: 400,
         message: `Missing field: ${VALID_PROPERTIES[i]}`,
@@ -70,26 +69,26 @@ function isNotTuesday(req, _res, next) {
   next();
 }
 function inFuture(req, _res, next) {
-  const { reservation_date } = req.body.data;
-  const inputDate = new Date(reservation_date);
+  const { reservation_date, reservation_time } = req.body.data;
+  const inputDate = new Date(`${reservation_date}T${reservation_time}`);
   const currentDate = new Date();
-  if(inputDate < currentDate){
+  if (inputDate <= currentDate) {
     next({
       status: 400,
-      message: "Reservation date needs to be in the future"
-    })
+      message: "Reservation date needs to be in the future",
+    });
   }
   next();
 }
-function withinHours(req,_res,next){
-  const {reservation_time} = req.body.data
-  if(reservation_time < "10:30" || reservation_time > "21:30"){
+function withinHours(req, _res, next) {
+  const { reservation_time } = req.body.data;
+  if (reservation_time < "10:30" || reservation_time > "21:30") {
     next({
       status: 400,
-      message:"not within hours"
-    })
+      message: "not within hours",
+    });
   }
-  next(); 
+  next();
 }
 function hasQuery(req, res, next) {
   const dateFormat = /\d{4}-\d{2}-\d{2}/;
