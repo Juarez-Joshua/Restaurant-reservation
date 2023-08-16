@@ -1,34 +1,72 @@
 import React, { useState } from "react";
 import ErrorAlert from "../layout/ErrorAlert";
 import { today, formatAsTime } from "../utils/date-time";
-function ReservationForm({
-  submitHandler,
-  cancelHandler,
-  formData,
-  setFormData,
-}) {
-  const [error, setError] = useState(null)
+
+function ReservationForm({ submitHandler, cancelHandler, initialForm }) {
+  const [formData, setFormData] = useState({ ...initialForm });
+  const [error, setError] = useState(null);
+
+  const validateDate = () => {
+    let dateError = false;
+    const newDate = new Date(
+      `${formData.reservation_date}T${formatAsTime(
+        formData.reservation_time
+      )}:00`
+    );
+
+    if (newDate.getDay() === 2) {
+      setError({message:"Closed on Tuesdays"});
+      dateError = true;
+    }
+    const current = new Date();
+    if (newDate < current) {
+      setError({message:"Needs to be future"});
+      dateError = true;
+    }
+    return dateError;
+  };
+
+  const validateTime = () => {
+    let timeError = false;
+    if (formData.reservation_date === today()) {
+      const currentTime = new Date();
+      const closingTime = new Date(`${today()}T21:30:00`);
+      const reservationTime = new Date(
+        `${today()}T${formatAsTime(formData.reservation_time)}:00`
+      );
+      if (currentTime > reservationTime || closingTime < reservationTime) {
+        setError({message:"Our reservation hours are between 10:30AM and 9:30PM"});
+        timeError = true;
+        console.log(error , "line 36");
+      }
+    } else {
+      const openingTime = new Date(`${today()}T10:30:00`);
+      const checkTime = new Date(
+        `${today()}T${formatAsTime(formData.reservation_time)}:00`
+      );
+      const closingTime = new Date(`${today()}T21:30`);
+      if (openingTime > checkTime || closingTime < checkTime) {
+        setError({message:"Our reservation hours are between 10:30AM and 9:30PM"});
+        timeError = true;
+        console.log(error , "line 49");
+      }
+    }
+    return timeError;
+  };
+  const validateData = () => {
+    let dataError = validateDate() || validateTime();
+    setFormData({ ...formData, people: Number(formData.people) });
+    return dataError;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateData()) {
+      await submitHandler(formData);
+    }
+  };
+
   const changeHandler = ({ target }) => {
-    setError(null)
-    //if people try to make reservations on past or closed days 
-    if (target.name === "reservation_date") {
-      const newDate = new Date(target.value);
-      if (newDate.getDay() === 2) {
-        setError({message: "Closed on Tuesdays"})
-      }
-      const current = new Date();
-      if(newDate < current){
-       setError({message: "reservation needs to be in the future"})
-      }
-    }
-    if(target.name === "reservation_time"){
-      const openingTime = new Date(`${today()}T10:30:00`)
-      const checkTime = new Date(`${today()}T${formatAsTime(target.value)}:00`);
-      const closingTime = new Date(`${today()}T21:30`)
-      if(openingTime > checkTime || closingTime < checkTime){
-        setError({message: "Our reservation hours are between 10:30AM and 9:30PM"})
-      }
-    }
     setFormData({
       ...formData,
       [target.name]: target.value,
@@ -38,7 +76,7 @@ function ReservationForm({
   return (
     <div>
       <ErrorAlert error={error} />
-      <form onSubmit={submitHandler}>
+      <form onSubmit={handleSubmit}>
         <label htmlFor="first_name">First name: </label>
         <input
           onChange={changeHandler}
@@ -67,7 +105,6 @@ function ReservationForm({
           name="mobile_number"
           id="mobile_number"
           type="text"
-          pattern="^\d{3}-\d{3}-\d{4}$"
           placeholder=""
           value={formData.mobile_number}
           required

@@ -3,7 +3,6 @@ import ReservationForm from "./ReservationForm";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import axios from "axios";
 import ErrorAlert from "../layout/ErrorAlert";
-import {today, formatAsTime} from "../utils/date-time"
 function CreateReservation() {
   //empty form w keys needed
   const initialData = {
@@ -14,37 +13,22 @@ function CreateReservation() {
     reservation_time: "",
     people: 1,
   };
-  //formData that will be updated and submitted
-  const [formData, setFormData] = useState({ ...initialData });
   //variable w useHistory ability
   const history = useHistory();
   //how to handle submission
   const [error, setError] = useState(null);
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const submitHandler = async (data) => {
     const abortController = new AbortController();
-    const formDataCorrectTypes = {
-      ...formData,
-      people: Number(formData.people),
-    };
-    if(formData.reservation_date === today()){
-      const currentTime = new Date();
-      const closingTime = new Date(`${today()}T21:30:00`);
-      const reservationTime = new Date(`${today()}T${formatAsTime(formData.reservation_time)}:00`)
-      if(currentTime > reservationTime || closingTime < reservationTime){
-        setError({message: `Reservation for today must be between ${currentTime} && ${closingTime}`})
-      }
-    }
     try {
       await axios.post(`http://localhost:5001/reservations`, {
-        data: formDataCorrectTypes,
+        data
       });
-      history.push(`/dashboard?date=${formDataCorrectTypes.reservation_date}`);
+      history.push(`/dashboard?date=${data.reservation_date}`);
     } catch (error) {
       if (error.name !== "AbortError") {
         const message = error.response.data.error;
-        // setError({ message });
+        setError({ message });
       }
       return () => abortController.abort();
     }
@@ -61,8 +45,7 @@ function CreateReservation() {
       <ReservationForm
         submitHandler={submitHandler}
         cancelHandler={cancelHandler}
-        formData={formData}
-        setFormData={setFormData}
+        initialForm={initialData}
       />
     </div>
   );
