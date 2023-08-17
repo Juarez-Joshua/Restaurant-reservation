@@ -2,6 +2,7 @@ const {
   listReservations,
   createReservation,
   reservationsOnDay,
+  readReservation,
 } = require("./reservations.service");
 
 const VALID_PROPERTIES = [
@@ -97,7 +98,19 @@ function hasQuery(req, res, next) {
   }
   next();
 }
-
+async function validReservationId(req,res,next){
+  const id = req.params.reservation_Id;
+  const reservation = await readReservation(id);
+  if(!reservation){
+    next({
+      status:400,
+      message:`No reservation with id ${id}`
+    })
+  }else{
+    res.locals.reservation = reservation;
+    next()
+  }
+}
 async function list(req, res, _next) {
   if (res.locals.date) {
     const data = await reservationsOnDay(res.locals.date);
@@ -112,7 +125,9 @@ async function create(req, res, _next) {
   const data = await createReservation(req.body.data);
   res.status(201).json({ data });
 }
-
+async function read(req,res,next){
+  res.status(200).json({data: res.locals.reservation});
+}
 module.exports = {
   list: [hasQuery, list],
   create: [
@@ -123,4 +138,5 @@ module.exports = {
     withinHours,
     create,
   ],
+  read: [validReservationId, read]
 };

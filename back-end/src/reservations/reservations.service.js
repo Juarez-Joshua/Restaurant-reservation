@@ -18,8 +18,12 @@ function reservationsOnDay(date) {
     .orderBy("reservation_time")
 }
 
+function readReservation(id){
+  return knex("reservations").select("*").where({reservation_id: id}).first();
+}
 module.exports = {
   listReservations,
   createReservation,
   reservationsOnDay,
+  readReservation,
 };
