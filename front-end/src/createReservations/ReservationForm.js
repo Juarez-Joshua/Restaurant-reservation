@@ -15,12 +15,12 @@ function ReservationForm({ submitHandler, cancelHandler, initialForm }) {
     );
 
     if (newDate.getDay() === 2) {
-      setError({message:"Closed on Tuesdays"});
+      setError({ message: "Closed on Tuesdays" });
       dateError = true;
     }
     const current = new Date();
     if (newDate < current) {
-      setError({message:"Needs to be future"});
+      setError({ message: "Needs to be future" });
       dateError = true;
     }
     return dateError;
@@ -35,9 +35,10 @@ function ReservationForm({ submitHandler, cancelHandler, initialForm }) {
         `${today()}T${formatAsTime(formData.reservation_time)}:00`
       );
       if (currentTime > reservationTime || closingTime < reservationTime) {
-        setError({message:"Our reservation hours are between 10:30AM and 9:30PM"});
+        setError({
+          message: "Our reservation hours are between 10:30AM and 9:30PM",
+        });
         timeError = true;
-        console.log(error , "line 36");
       }
     } else {
       const openingTime = new Date(`${today()}T10:30:00`);
@@ -46,9 +47,10 @@ function ReservationForm({ submitHandler, cancelHandler, initialForm }) {
       );
       const closingTime = new Date(`${today()}T21:30`);
       if (openingTime > checkTime || closingTime < checkTime) {
-        setError({message:"Our reservation hours are between 10:30AM and 9:30PM"});
+        setError({
+          message: "Our reservation hours are between 10:30AM and 9:30PM",
+        });
         timeError = true;
-        console.log(error , "line 49");
       }
     }
     return timeError;
