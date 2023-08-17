@@ -101,9 +101,6 @@ function hasQuery(req, res, next) {
 async function list(req, res, _next) {
   if (res.locals.date) {
     const data = await reservationsOnDay(res.locals.date);
-    data.sort((a, b) => {
-      return a.reservation_time.localeCompare(b.reservation_time);
-    });
     res.json({ data });
   } else {
     const data = await listReservations();
