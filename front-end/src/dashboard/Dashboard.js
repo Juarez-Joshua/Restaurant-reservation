@@ -10,7 +10,7 @@ import FormatReservations from "./FormatReservations";
 import useQuery from "../utils/useQuery";
 import TableFormat from "./TableFormat";
 import axios from "axios";
-require('dotenv').config();
+require("dotenv").config();
 /**
  * Defines the dashboard page.
  * @param date
@@ -25,7 +25,7 @@ function Dashboard({ date }) {
   const [reservationsError, setReservationsError] = useState(null);
   const [currentDate, setCurrentDate] = useState(date);
   const [tables, setTables] = useState(null);
-  const BASE_URL = process.env.REACT_APP_API_BASE_URL
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   useEffect(() => {
     function getDate() {
       const queryDate = query.get("date");
@@ -45,6 +45,7 @@ function Dashboard({ date }) {
       .then(({ data }) => {
         setTables(data.data);
       })
+      .catch(setReservationsError);
   }
 
   useEffect(loadDashboard, [currentDate]);
@@ -78,7 +79,12 @@ function Dashboard({ date }) {
       <div className="tables">
         <h4>Tables</h4>
         {tables
-          ? tables.map((e) => <TableFormat key={e.table_id} table={e} />)
+          ? tables.map((e) => (
+              <TableFormat
+                key={e.table_id}
+                table={e}
+              />
+            ))
           : "No tables"}
       </div>
       <div className="mt-2">

@@ -12,7 +12,7 @@ function SeatingOptions({
   const [formData, setFormData] = useState({ ...initialForm });
   const [error, setError] = useState(null);
   let capacityError;
-  const validateSize = (tableCapacity) => {
+  const validateSize = () => {
     const table = freeTables.find((e) => e.table_id === formData.table_id);
     if (table.capacity < capacity) {
       capacityError = true;
@@ -45,8 +45,13 @@ function SeatingOptions({
           value={formData.table_id}
           className="mb-2"
         >
+          <option>Select a Table</option>
           {freeTables.map((e) => (
-            <FormatOptions key={e.table_id} table={e} validateSize={validateSize}/>
+            <FormatOptions
+              key={e.table_id}
+              table={e}
+              validateSize={validateSize}
+            />
           ))}
         </select>
         <br />
