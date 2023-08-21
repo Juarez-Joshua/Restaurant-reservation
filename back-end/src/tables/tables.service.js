@@ -9,4 +9,13 @@ function insertTable(table) {
     .returning("*")
     .then((createdRecords) => createdRecords[0]);
 }
-module.exports = { listTables, insertTable };
+function readTable(tableId) {
+  return knex("tables").select("*").where({ table_id: tableId }).first();
+}
+function seatTable(tableId, reservationId) {
+  return knex("tables")
+    .select("*")
+    .where({ table_id: tableId })
+    .update({ reservation_id: reservationId });
+}
+module.exports = { listTables, insertTable, readTable, seatTable };

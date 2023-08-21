@@ -103,7 +103,7 @@ async function validReservationId(req,res,next){
   const reservation = await readReservation(id);
   if(!reservation){
     next({
-      status:400,
+      status:404,
       message:`No reservation with id ${id}`
     })
   }else{
@@ -138,5 +138,5 @@ module.exports = {
     withinHours,
     create,
   ],
-  read: [validReservationId, read]
+  read: [validReservationId, read],
 };
