@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const controller = require("./tables.controller")
-
-router.route("/:table_id/seat").put(controller.seatReservation)
-router.route("/").get(controller.list).post(controller.create)
+const methodNotAllowed = require("../errors/methodNotAllowed")
+router.route("/:table_id/seat").put(controller.seatReservation).all(methodNotAllowed)
+router.route("/").get(controller.list).post(controller.create).all(methodNotAllowed);
 
 module.exports = router
