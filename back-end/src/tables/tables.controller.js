@@ -1,10 +1,6 @@
-const {
-  listTables,
-  insertTable,
-  readTable,
-  seatTable,
-} = require("./tables.service");
 const { readReservation } = require("../reservations/reservations.service");
+const { listTables, insertTable, readTable, seatTable, clearTable } =
+ require("./tables.service");
 function hasData(req, res, next) {
   const { data } = req.body;
   if (!data) {
@@ -86,19 +82,37 @@ async function validTable(req, res, next) {
   const table = await readTable(tableId);
   if (!table) {
     next({
-      status: 400,
-      message: "Not a valid table",
-    });
-  } else if (table.reservation_id) {
-    next({
-      status: 400,
-      message: "Table is occupied",
+      status: 404,
+      message: `Id ${tableId} is not a valid table`,
     });
   } else {
     res.locals.table = table;
     next();
   }
 }
+function tableEmpty(req, res, next) {
+  const { table } = res.locals;
+  if (table.reservation_id) {
+    next({
+      status: 400,
+      message: "Table is occupied",
+    });
+  } else {
+    next();
+  }
+}
+function tableOccupied(req, res, next) {
+  const { table } = res.locals;
+  if (!table.reservation_id) {
+    next({
+      status: 400,
+      message: "This table is not occupied",
+    });
+  } else {
+    next();
+  }
+}
+
 async function list(_req, res, _next) {
   const data = await listTables();
   res.json({ data });
@@ -114,6 +128,10 @@ async function seatReservation(req, res, next) {
   );
   res.status(200).json(data);
 }
+async function finishTable(req, res, next) {
+  await clearTable(res.locals.table.table_id);
+  res.sendStatus(200);
+}
 module.exports = {
   list,
   create: [hasData, hasTableName, hasCapacity, create],
@@ -121,7 +139,9 @@ module.exports = {
     hasData,
     hasReservationId,
     validTable,
+    tableEmpty,
     checkReservation,
     seatReservation,
   ],
+  finish: [validTable, tableOccupied, finishTable],
 };

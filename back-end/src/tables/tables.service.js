@@ -18,4 +18,10 @@ function seatTable(tableId, reservationId) {
     .where({ table_id: tableId })
     .update({ reservation_id: reservationId });
 }
-module.exports = { listTables, insertTable, readTable, seatTable };
+function clearTable(tableId) {
+  return knex("tables")
+    .select("*")
+    .where({ table_id: tableId })
+    .update({ reservation_id: null });
+}
+module.exports = { listTables, insertTable, readTable, seatTable, clearTable };
