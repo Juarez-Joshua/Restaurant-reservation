@@ -20,23 +20,27 @@ function SeatingHome() {
   };
   useEffect(loadTables, [BASE_URL]);
   function loadTables() {
-    axios.get(`${BASE_URL}/tables`).then(({ data }) => {
-      setTables(data.data.filter((e) => !e.reservation_id));
-    });
+    axios
+      .get(`${BASE_URL}/tables`)
+      .then(({ data }) => {
+        setTables(data.data.filter((e) => !e.reservation_id));
+      })
+      .catch(setError);
   }
 
   useEffect(loadReservation, [reservation_id, BASE_URL]);
   function loadReservation() {
     axios
       .get(`${BASE_URL}/reservations/${reservation_id}`)
-      .then(({ data }) => setReservation(data.data));
+      .then(({ data }) => setReservation(data.data))
+      .catch(setError);
   }
 
   const submitHandler = async (data) => {
     const abortController = new AbortController();
     try {
       await axios.put(`${BASE_URL}/tables/${data.table_id}/seat`, {
-        data:{reservation_id: data.reservation_id},
+        data: { reservation_id: data.reservation_id },
       });
       history.push("/dashboard");
     } catch (error) {
