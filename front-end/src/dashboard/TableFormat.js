@@ -1,7 +1,6 @@
 import React from "react";
 
 function TableFormat({ table }) {
-  console.log(table);
   return (
     <div
       className="border border-secondary mb-2 "

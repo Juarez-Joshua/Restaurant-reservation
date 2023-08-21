@@ -10,6 +10,7 @@ import FormatReservations from "./FormatReservations";
 import useQuery from "../utils/useQuery";
 import TableFormat from "./TableFormat";
 import axios from "axios";
+require('dotenv').config();
 /**
  * Defines the dashboard page.
  * @param date
@@ -24,6 +25,7 @@ function Dashboard({ date }) {
   const [reservationsError, setReservationsError] = useState(null);
   const [currentDate, setCurrentDate] = useState(date);
   const [tables, setTables] = useState(null);
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL
   useEffect(() => {
     function getDate() {
       const queryDate = query.get("date");
@@ -36,14 +38,13 @@ function Dashboard({ date }) {
     getDate();
   }, [query, route]);
 
-  useEffect(loadTables, []);
+  useEffect(loadTables, [BASE_URL]);
   function loadTables() {
     axios
-      .get("http://localhost:5001/tables")
+      .get(`${BASE_URL}/tables`)
       .then(({ data }) => {
         setTables(data.data);
       })
-      .then(() => console.log(tables));
   }
 
   useEffect(loadDashboard, [currentDate]);

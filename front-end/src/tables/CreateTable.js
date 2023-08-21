@@ -3,7 +3,10 @@ import TableForm from "./TableForm";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import ErrorAlert from "../layout/ErrorAlert";
 import axios from "axios";
+require("dotenv").config();
+
 function CreateTable() {
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const [error, setError] = useState(null);
   const history = useHistory();
   const initialForm = {
@@ -13,7 +16,7 @@ function CreateTable() {
   const submitHandler = async (data) => {
     const abortController = new AbortController();
     try {
-      await axios.post(`http://localhost:5001/tables`, {
+      await axios.post(`${BASE_URL}/tables`, {
         data,
       });
       history.push("/dashboard");
