@@ -1,10 +1,35 @@
 import React, { useState } from "react";
+import ErrorAlert from "../layout/ErrorAlert";
 
 function TableForm({ submitHandler, cancelHandler, initialForm }) {
   const [formData, setFormData] = useState({ ...initialForm });
+  const [error, setError] = useState(null);
+
+  const validateTableName = () => {
+    let nameError = false;
+    if (formData.table_name.length <= 1) {
+      setError({ message: "Table names need at least two characters" });
+      nameError = true;
+    }
+    return nameError;
+  };
+  const validateCapacity = () => {
+    let capacityError = false;
+    if (formData.capacity < 1) {
+      setError({ message: "Capacity needs to be greater than 1" });
+      capacityError = true;
+    }
+    return capacityError;
+  };
+  const validateData = () => {
+    let dataError = validateCapacity() || validateTableName();
+    return dataError;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await submitHandler(formData);
+    if (!validateData()) {
+      await submitHandler({ ...formData, capacity: Number(formData.capacity) });
+    }
   };
   const changeHandler = ({ target }) => {
     setFormData({
@@ -14,6 +39,7 @@ function TableForm({ submitHandler, cancelHandler, initialForm }) {
   };
   return (
     <div>
+      <ErrorAlert error={error} />
       <form onSubmit={handleSubmit}>
         <label htmlFor="table_name">Table Name:</label>
         <input
@@ -23,7 +49,6 @@ function TableForm({ submitHandler, cancelHandler, initialForm }) {
           type="text"
           placeholder=""
           value={formData.table_name}
-          required
         ></input>
         <br />
         <label htmlFor="capacity">Capacity:</label>
@@ -34,8 +59,6 @@ function TableForm({ submitHandler, cancelHandler, initialForm }) {
           type="number"
           placeholder=""
           value={formData.capacity}
-          required
-          min={1}
         ></input>
         <br />
         <button className="btn btn-primary mr-2" type="submit">

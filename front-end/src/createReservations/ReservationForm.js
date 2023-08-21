@@ -57,14 +57,13 @@ function ReservationForm({ submitHandler, cancelHandler, initialForm }) {
   };
   const validateData = () => {
     let dataError = validateDate() || validateTime();
-    setFormData({ ...formData, people: Number(formData.people) });
     return dataError;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateData()) {
-      await submitHandler(formData);
+      await submitHandler({ ...formData, people: Number(formData.people) });
     }
   };
 

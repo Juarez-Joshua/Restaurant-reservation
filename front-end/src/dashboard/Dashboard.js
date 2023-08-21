@@ -8,6 +8,8 @@ import {
 import { next, previous, today } from "../utils/date-time";
 import FormatReservations from "./FormatReservations";
 import useQuery from "../utils/useQuery";
+import TableFormat from "./TableFormat";
+import axios from "axios";
 /**
  * Defines the dashboard page.
  * @param date
@@ -21,6 +23,7 @@ function Dashboard({ date }) {
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
   const [currentDate, setCurrentDate] = useState(date);
+  const [tables, setTables] = useState(null);
   useEffect(() => {
     function getDate() {
       const queryDate = query.get("date");
@@ -32,8 +35,18 @@ function Dashboard({ date }) {
     }
     getDate();
   }, [query, route]);
-  useEffect(loadDashboard, [currentDate]);
 
+  useEffect(loadTables, []);
+  function loadTables() {
+    axios
+      .get("http://localhost:5001/tables")
+      .then(({ data }) => {
+        setTables(data.data);
+      })
+      .then(() => console.log(tables));
+  }
+
+  useEffect(loadDashboard, [currentDate]);
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
@@ -50,17 +63,40 @@ function Dashboard({ date }) {
         <h3 className="mb-0">Reservations for {currentDate}</h3>
       </div>
       <ErrorAlert error={reservationsError} />
-      {reservations.length > 0
-        ? reservations.map((e) => <FormatReservations key ={e.reservation_id}reservation={e} />)
-        : "No reservations today"}
-      <div>
+      <div className="reservations">
+        {reservations.length > 0
+          ? reservations.map((e) => (
+              <FormatReservations
+                key={e.reservation_id}
+                reservation={e}
+                showButton={true}
+              />
+            ))
+          : "No reservations today"}
+      </div>
+      <div className="tables">
+        <h4>Tables</h4>
+        {tables
+          ? tables.map((e) => <TableFormat key={e.table_id} table={e} />)
+          : "No tables"}
+      </div>
+      <div className="mt-2">
         <button
+          className="mr-2"
           onClick={() => {
             history.push(`/dashboard?date=${previous(currentDate)}`);
             setCurrentDate(previous(currentDate));
           }}
         >
           Previous Day
+        </button>
+        <button
+          className="mr-2"
+          onClick={() => {
+            history.push("/dashboard");
+          }}
+        >
+          Today
         </button>
         <button
           onClick={() => {

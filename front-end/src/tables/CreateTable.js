@@ -8,7 +8,7 @@ function CreateTable() {
   const history = useHistory();
   const initialForm = {
     table_name: "",
-    capacity: 1,
+    capacity: 0,
   };
   const submitHandler = async (data) => {
     const abortController = new AbortController();
