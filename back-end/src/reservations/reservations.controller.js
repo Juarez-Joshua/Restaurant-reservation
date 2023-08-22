@@ -3,6 +3,7 @@ const {
   createReservation,
   reservationsOnDay,
   readReservation,
+  updateReservation,
 } = require("./reservations.service");
 
 const VALID_PROPERTIES = [
@@ -12,6 +13,7 @@ const VALID_PROPERTIES = [
   "reservation_date",
   "reservation_time",
   "people",
+  "status",
 ];
 
 function hasAllValidProperties(req, _res, next) {
@@ -56,10 +58,11 @@ function validateDateTimePeople(req, res, next) {
       message: "reservation_time needs to be a correct time",
     });
   }
+  res.locals.data = data;
   next();
 }
-function isNotTuesday(req, _res, next) {
-  const { reservation_date } = req.body.data;
+function isNotTuesday(_req, res, next) {
+  const { reservation_date } = res.locals.data;
   const inputDate = new Date(reservation_date);
   if (inputDate.getDay() === 1) {
     next({
@@ -69,8 +72,8 @@ function isNotTuesday(req, _res, next) {
   }
   next();
 }
-function inFuture(req, _res, next) {
-  const { reservation_date, reservation_time } = req.body.data;
+function inFuture(_req, res, next) {
+  const { reservation_date, reservation_time } = res.locals.data;
   const inputDate = new Date(`${reservation_date}T${reservation_time}`);
   const currentDate = new Date();
   if (inputDate <= currentDate) {
@@ -81,8 +84,8 @@ function inFuture(req, _res, next) {
   }
   next();
 }
-function withinHours(req, _res, next) {
-  const { reservation_time } = req.body.data;
+function withinHours(_req, res, next) {
+  const { reservation_time } = res.locals.data;
   if (reservation_time < "10:30" || reservation_time > "21:30") {
     next({
       status: 400,
@@ -91,6 +94,17 @@ function withinHours(req, _res, next) {
   }
   next();
 }
+function statusIsBooked(_req, res, next) {
+  const { status } = res.locals.data;
+  if (status !== "booked") {
+    next({
+      status: 400,
+      message: `The status ${status} is invalid for initial booking.`,
+    });
+  } else {
+    next();
+  }
+}
 function hasQuery(req, res, next) {
   const dateFormat = /\d{4}-\d{2}-\d{2}/;
   if (req.query.date && dateFormat.test(req.query.date)) {
@@ -98,17 +112,40 @@ function hasQuery(req, res, next) {
   }
   next();
 }
-async function validReservationId(req,res,next){
+async function validReservationId(req, res, next) {
   const id = req.params.reservation_Id;
   const reservation = await readReservation(id);
-  if(!reservation){
+  if (!reservation) {
     next({
-      status:404,
-      message:`No reservation with id ${id}`
-    })
-  }else{
+      status: 404,
+      message: `No reservation with id ${id}`,
+    });
+  } else {
     res.locals.reservation = reservation;
-    next()
+    next();
+  }
+}
+function reservationUnfinished(req, res, next) {
+  const { status } = res.locals.reservation;
+  if (status === "finished") {
+    next({
+      status: 400,
+      message: "a finished reservation cannot be updated",
+    });
+  } else {
+    next();
+  }
+}
+function validUpdateStatus(req, res, next) {
+  const validStatuses = ["booked", "seated", "finished"];
+  const { status } = req.body.data;
+  if (validStatuses.includes(status)) {
+    next();
+  } else {
+    next({
+      status: 400,
+      message: `The status: ${status} is invalid`,
+    });
   }
 }
 async function list(req, res, _next) {
@@ -125,8 +162,14 @@ async function create(req, res, _next) {
   const data = await createReservation(req.body.data);
   res.status(201).json({ data });
 }
-async function read(req,res,next){
-  res.status(200).json({data: res.locals.reservation});
+async function read(req, res, next) {
+  res.status(200).json({ data: res.locals.reservation });
+}
+async function updateStatus(req, res, next) {
+  const { reservation_id } = res.locals.reservation;
+  const { status } = req.body.data;
+  await updateReservation(reservation_id, status);
+  res.status(200).json({ data: {status} });
 }
 module.exports = {
   list: [hasQuery, list],
@@ -136,7 +179,14 @@ module.exports = {
     isNotTuesday,
     inFuture,
     withinHours,
+    statusIsBooked,
     create,
   ],
   read: [validReservationId, read],
+  updateStatus: [
+    validReservationId,
+    reservationUnfinished,
+    validUpdateStatus,
+    updateStatus,
+  ],
 };

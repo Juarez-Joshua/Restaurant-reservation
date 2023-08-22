@@ -1,6 +1,14 @@
-const { readReservation } = require("../reservations/reservations.service");
-const { listTables, insertTable, readTable, seatTable, clearTable } =
- require("./tables.service");
+const {
+  readReservation,
+  updateReservation,
+} = require("../reservations/reservations.service");
+const {
+  listTables,
+  insertTable,
+  readTable,
+  seatTable,
+  clearTable,
+} = require("./tables.service");
 function hasData(req, res, next) {
   const { data } = req.body;
   if (!data) {
@@ -74,6 +82,11 @@ async function checkReservation(req, res, next) {
       status: 400,
       message: "Table doesn't have enough capacity",
     });
+  }else if(reservation.status === "seated"){
+    next({
+      status: 400,
+      message: "This reservation is already seated"
+    })
   }
   next();
 }
@@ -126,9 +139,11 @@ async function seatReservation(req, res, next) {
     res.locals.table.table_id,
     res.locals.reservationId
   );
+  await updateReservation(res.locals.reservationId, "seated");
   res.status(200).json(data);
 }
 async function finishTable(req, res, next) {
+  await updateReservation(res.locals.table.reservation_id, "finished")
   await clearTable(res.locals.table.table_id);
   res.sendStatus(200);
 }
