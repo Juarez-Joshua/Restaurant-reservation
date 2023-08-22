@@ -141,6 +141,19 @@ function validUpdateStatus(req, res, next) {
     });
   }
 }
+function statusIsBooked(req,res,next){
+  const {status} = res.locals.data
+  if(!status){
+    next()
+  }else if(status === "booked"){
+    next()
+  }else{
+    next({
+      status:400,
+      message: `The status ${status} isn't allowed on initial post`
+    })
+  }
+}
 async function list(req, res, _next) {
   if (res.locals.date) {
     const data = await reservationsOnDay(res.locals.date);
@@ -179,6 +192,7 @@ module.exports = {
     isNotTuesday,
     inFuture,
     withinHours,
+    statusIsBooked,
     create,
   ],
   read: [validReservationId, read],
