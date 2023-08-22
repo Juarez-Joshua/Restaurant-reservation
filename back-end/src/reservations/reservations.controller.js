@@ -130,7 +130,7 @@ function reservationUnfinished(req, res, next) {
   }
 }
 function validUpdateStatus(req, res, next) {
-  const validStatuses = ["booked", "seated", "finished"];
+  const validStatuses = ["booked", "seated", "finished", "cancelled"];
   const { status } = req.body.data;
   if (validStatuses.includes(status)) {
     next();
