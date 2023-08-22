@@ -3,7 +3,10 @@ import ReservationForm from "./ReservationForm";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import axios from "axios";
 import ErrorAlert from "../layout/ErrorAlert";
+require("dotenv").config();
+
 function CreateReservation() {
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   //empty form w keys needed
   const initialData = {
     first_name: "",
@@ -21,7 +24,7 @@ function CreateReservation() {
   const submitHandler = async (data) => {
     const abortController = new AbortController();
     try {
-      await axios.post(`http://localhost:5001/reservations`, {
+      await axios.post(`${BASE_URL}/reservations`, {
         data
       });
       history.push(`/dashboard?date=${data.reservation_date}`);
