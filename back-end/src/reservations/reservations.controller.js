@@ -13,7 +13,6 @@ const VALID_PROPERTIES = [
   "reservation_date",
   "reservation_time",
   "people",
-  "status",
 ];
 
 function hasAllValidProperties(req, _res, next) {
@@ -94,17 +93,6 @@ function withinHours(_req, res, next) {
   }
   next();
 }
-function statusIsBooked(_req, res, next) {
-  const { status } = res.locals.data;
-  if (status !== "booked") {
-    next({
-      status: 400,
-      message: `The status ${status} is invalid for initial booking.`,
-    });
-  } else {
-    next();
-  }
-}
 function hasQuery(req, res, next) {
   const dateFormat = /\d{4}-\d{2}-\d{2}/;
   if (req.query.date && dateFormat.test(req.query.date)) {
@@ -179,7 +167,6 @@ module.exports = {
     isNotTuesday,
     inFuture,
     withinHours,
-    statusIsBooked,
     create,
   ],
   read: [validReservationId, read],
