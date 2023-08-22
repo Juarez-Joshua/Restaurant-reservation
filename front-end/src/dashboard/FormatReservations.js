@@ -20,7 +20,7 @@ function FormatReservations({ reservation, showButton }) {
       <p data-reservation-id-status={reservation.reservation_id}>
         status: {status}
       </p>
-      {status === "booked" ? (
+      {status === "booked" && showButton? (
         <Link
           to={`/reservations/${reservation_id}/seat`}
           className="btn btn-primary"
