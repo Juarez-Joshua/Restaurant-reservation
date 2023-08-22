@@ -3,8 +3,9 @@ const {
   createReservation,
   reservationsOnDay,
   readReservation,
-  updateReservation,
+  updateReservationStatus,
   searchForNumber,
+  changeReservation,
 } = require("./reservations.service");
 
 const VALID_PROPERTIES = [
@@ -163,8 +164,12 @@ async function read(req, res, next) {
 async function updateStatus(req, res, next) {
   const { reservation_id } = res.locals.reservation;
   const { status } = req.body.data;
-  await updateReservation(reservation_id, status);
+  await updateReservationStatus(reservation_id, status);
   res.status(200).json({ data: { status } });
+}
+async function updateReservation(req, res, next) {
+  const data = await changeReservation(req.body.data)
+  res.status(200).json({data})
 }
 module.exports = {
   list: [hasQuery, list],
@@ -182,5 +187,13 @@ module.exports = {
     reservationUnfinished,
     validUpdateStatus,
     updateStatus,
+  ],
+  updateReservation: [
+    validReservationId,
+    hasAllValidProperties,
+    validateDateTimePeople,
+    isNotTuesday,
+    inFuture,
+    updateReservation,
   ],
 };

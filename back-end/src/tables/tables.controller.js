@@ -1,6 +1,6 @@
 const {
   readReservation,
-  updateReservation,
+  updateReservationStatus,
 } = require("../reservations/reservations.service");
 const {
   listTables,
@@ -139,11 +139,11 @@ async function seatReservation(req, res, next) {
     res.locals.table.table_id,
     res.locals.reservationId
   );
-  await updateReservation(res.locals.reservationId, "seated");
+  await updateReservationStatus(res.locals.reservationId, "seated");
   res.status(200).json(data);
 }
 async function finishTable(req, res, next) {
-  await updateReservation(res.locals.table.reservation_id, "finished")
+  await updateReservationStatus(res.locals.table.reservation_id, "finished")
   await clearTable(res.locals.table.table_id);
   res.sendStatus(200);
 }

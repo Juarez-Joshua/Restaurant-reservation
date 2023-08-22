@@ -22,7 +22,7 @@ function reservationsOnDay(date) {
 function readReservation(id) {
   return knex("reservations").select("*").where({ reservation_id: id }).first();
 }
-function updateReservation(reservationId, newStatus) {
+function updateReservationStatus(reservationId, newStatus) {
   return knex("reservations")
     .select("*")
     .where({ reservation_id: reservationId })
@@ -36,11 +36,19 @@ function searchForNumber(mobile_number) {
     )
     .orderBy("reservation_date");
 }
+function changeReservation(updatedReservation){
+  return knex("reservations")
+    .select("*")
+    .where({reservation_id: updatedReservation.reservation_id})
+    .update(updatedReservation, "*")
+    .then((updatedRecords) => updatedRecords[0])
+}
 module.exports = {
   listReservations,
   createReservation,
   reservationsOnDay,
   readReservation,
-  updateReservation,
+  updateReservationStatus,
   searchForNumber,
+  changeReservation,
 };
