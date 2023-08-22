@@ -4,6 +4,7 @@ const {
   reservationsOnDay,
   readReservation,
   updateReservation,
+  searchForNumber,
 } = require("./reservations.service");
 
 const VALID_PROPERTIES = [
@@ -98,6 +99,9 @@ function hasQuery(req, res, next) {
   if (req.query.date && dateFormat.test(req.query.date)) {
     res.locals.date = req.query.date;
   }
+  if (req.query.mobile_number) {
+    res.locals.mobile_number = req.query.mobile_number;
+  }
   next();
 }
 async function validReservationId(req, res, next) {
@@ -140,6 +144,9 @@ async function list(req, res, _next) {
   if (res.locals.date) {
     const data = await reservationsOnDay(res.locals.date);
     res.json({ data });
+  } else if (res.locals.mobile_number) {
+    const data = await searchForNumber(res.locals.mobile_number);
+    res.json({ data });
   } else {
     const data = await listReservations();
     res.json({ data });
@@ -157,7 +164,7 @@ async function updateStatus(req, res, next) {
   const { reservation_id } = res.locals.reservation;
   const { status } = req.body.data;
   await updateReservation(reservation_id, status);
-  res.status(200).json({ data: {status} });
+  res.status(200).json({ data: { status } });
 }
 module.exports = {
   list: [hasQuery, list],
