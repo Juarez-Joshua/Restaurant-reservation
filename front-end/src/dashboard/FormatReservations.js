@@ -1,5 +1,6 @@
 import React from "react";
 import { formatAsTime } from "../utils/date-time";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 function FormatReservations({ reservation, showButton }) {
   const {
     reservation_id,
@@ -8,6 +9,7 @@ function FormatReservations({ reservation, showButton }) {
     mobile_number,
     reservation_time,
     people,
+    status,
   } = reservation;
   return (
     <div>
@@ -15,13 +17,17 @@ function FormatReservations({ reservation, showButton }) {
       <p>time: {formatAsTime(reservation_time)}</p>
       <p>party size: {people}</p>
       <p>phone number: {mobile_number}</p>
-      {showButton ? (
-        <a
+      <p data-reservation-id-status={reservation.reservation_id}>
+        status: {status}
+      </p>
+      {status === "booked" ? (
+        <Link
+          to={`/reservations/${reservation_id}/seat`}
           className="btn btn-primary"
           href={`/reservations/${reservation_id}/seat`}
         >
           Seat
-        </a>
+        </Link>
       ) : (
         ""
       )}
