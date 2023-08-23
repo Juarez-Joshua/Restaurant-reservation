@@ -3,7 +3,7 @@ import axios from "axios";
 import ErrorAlert from "../layout/ErrorAlert"
 require("dotenv").config();
 
-function TableFormat({ table }) {
+function TableFormat({ table, loadTables, loadDashboard }) {
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const [error, setError] = useState(null);
   const finishHandler = async () => {
@@ -13,7 +13,8 @@ function TableFormat({ table }) {
     if (shouldDelete) {
       try {
         await axios.delete(`${BASE_URL}/tables/${table.table_id}/seat`);
-        window.location.reload(true);
+        loadTables();
+        loadDashboard()
       } catch(error) {setError(error)}
     }
   };

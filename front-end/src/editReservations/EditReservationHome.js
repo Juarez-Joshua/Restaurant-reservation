@@ -13,31 +13,40 @@ function EditReservationHome() {
   const history = useHistory();
   const { reservation_id } = useParams();
 
-  useEffect(loadReservation, [reservation_id, BASE_URL]);
-  function loadReservation() {
-    axios
-      .get(`${BASE_URL}/reservations/${reservation_id}`)
-      .then(({ data }) =>
+  useEffect(() => {
+    async function getReservation(){
+      const abortController = new AbortController();
+      try {
+        const data = await axios.get(
+          `${BASE_URL}/reservations/${reservation_id}`,
+          { signal: abortController.signal }
+        );
+  
         setReservation({
-          ...data.data,
-          reservation_date: data.data.reservation_date.substring(0, 10),
-        })
-      )
-      .catch(setError);
-  }
+          ...data.data.data,
+          reservation_date: data.data.data.reservation_date.substring(0, 10),
+        });
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setError(error);
+        }
+      }
+      return () => abortController.abort();
+    }
+    getReservation()
+  }, [reservation_id, BASE_URL]);
+
   const handleSubmit = async (data) => {
-    const abortController = new AbortController();
     try {
       await axios.put(`${BASE_URL}/reservations/${reservation_id}`, {
         data,
       });
-      history.push(`/dashboard?date=${data.reservation_date}`)
+      history.push(`/dashboard?date=${data.reservation_date}`);
     } catch (error) {
       if (error.name !== "AbortError") {
         const message = error.response.data.error;
         setError({ message });
       }
-      return () => abortController.abort();
     }
   };
   const gotToPrevious = () => {

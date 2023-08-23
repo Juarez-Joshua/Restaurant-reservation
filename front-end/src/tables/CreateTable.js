@@ -25,8 +25,8 @@ function CreateTable() {
         const message = error.response.data.error;
         setError({ message });
       }
-      return () => abortController.abort();
     }
+    return () => abortController.abort();
   };
   const cancelHandler = () => {
     history.goBack();

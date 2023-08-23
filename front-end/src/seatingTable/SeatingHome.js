@@ -18,26 +18,41 @@ function SeatingHome() {
     reservation_id,
     table_id: 0,
   };
-  useEffect(loadTables, [BASE_URL]);
-  function loadTables() {
-    axios
-      .get(`${BASE_URL}/tables`)
-      .then(({ data }) => {
-        setTables(data.data.filter((e) => !e.reservation_id));
-      })
-      .catch(setError);
-  }
+  useEffect(() => {
+    async function loadTables() {
+      const abortController = new AbortController();
+      try {
+        const data = await axios.get(`${BASE_URL}/tables`);
+        setTables(data.data.data.filter((e) => !e.reservation_id));
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setError(error);
+        }
+      }
+      return () => abortController.abort();
+    }
+    loadTables();
+  }, [BASE_URL]);
 
-  useEffect(loadReservation, [reservation_id, BASE_URL]);
-  function loadReservation() {
-    axios
-      .get(`${BASE_URL}/reservations/${reservation_id}`)
-      .then(({ data }) => setReservation(data.data))
-      .catch(setError);
-  }
+  useEffect(() => {
+    async function loadReservation() {
+      const abortController = new AbortController();
+      try {
+        const data = await axios.get(
+          `${BASE_URL}/reservations/${reservation_id}`
+        );
+        setReservation(data.data.data);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setError(error);
+        }
+      }
+      return () => abortController.abort();
+    }
+    loadReservation();
+  }, [reservation_id, BASE_URL]);
 
   const submitHandler = async (data) => {
-    const abortController = new AbortController();
     try {
       await axios.put(`${BASE_URL}/tables/${data.table_id}/seat`, {
         data: { reservation_id: data.reservation_id },
@@ -45,10 +60,8 @@ function SeatingHome() {
       history.push("/dashboard");
     } catch (error) {
       if (error.name !== "AbortError") {
-        const message = error.response.data.error;
-        setError({ message });
+        setError(error);
       }
-      return () => abortController.abort();
     }
   };
   const cancelHandler = () => {
@@ -63,7 +76,7 @@ function SeatingHome() {
       ) : (
         ""
       )}
-      {reservation ? (
+      {tables && reservation ? (
         <SeatingOptions
           freeTables={tables}
           capacity={reservation.capacity}

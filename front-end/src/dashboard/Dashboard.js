@@ -24,7 +24,7 @@ function Dashboard({ date }) {
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
   const [currentDate, setCurrentDate] = useState(date);
-  const [tables, setTables] = useState(null);
+  const [tables, setTables] = useState([]);
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   useEffect(() => {
     function getDate() {
@@ -40,12 +40,18 @@ function Dashboard({ date }) {
 
   useEffect(loadTables, [BASE_URL]);
   function loadTables() {
+    const abortController = new AbortController();
     axios
-      .get(`${BASE_URL}/tables`)
-      .then(({ data }) => {
-        setTables(data.data);
+      .get(`${BASE_URL}/tables`, {
+        signal: abortController.signal,
       })
-      .catch(setReservationsError);
+      .then(({ data }) => setTables(data.data))
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          setReservationsError(error);
+        }
+      });
+    return () => abortController.abort();
   }
 
   useEffect(loadDashboard, [currentDate]);
@@ -80,7 +86,7 @@ function Dashboard({ date }) {
           Today
         </button>
         <button
-        className="btn btn-primary"
+          className="btn btn-primary"
           onClick={() => {
             history.push(`/dashboard?date=${next(currentDate)}`);
             setCurrentDate(next(currentDate));
@@ -113,6 +119,8 @@ function Dashboard({ date }) {
               <TableFormat
                 key={e.table_id}
                 table={e}
+                loadTables={loadTables}
+                loadDashboard={loadDashboard}
               />
             ))
           : "No tables"}

@@ -14,7 +14,6 @@ function NumberSearchHome() {
   const [error, setError] = useState(null);
 
   const submitHandler = async (data) => {
-    const abortController = new AbortController();
     try {
       const results = await axios.get(
         `${BASE_URL}/reservations?mobile_number=${data.mobile_number}`
@@ -23,10 +22,8 @@ function NumberSearchHome() {
       setAttemptedSearch(true);
     } catch (error) {
       if (error.name !== "AbortError") {
-        const message = error.response.data.error;
-        setError({ message });
+        setError(error);
       }
-      return () => abortController.abort();
     }
   };
   return (
@@ -43,7 +40,12 @@ function NumberSearchHome() {
       {attemptedSearch && foundReservations.length > 0
         ? foundReservations.map((e) => {
             return (
-              <FormatReservations key={e.reservation_id} reservation={e} showCancel={true} showEdit={true} />
+              <FormatReservations
+                key={e.reservation_id}
+                reservation={e}
+                showCancel={true}
+                showEdit={true}
+              />
             );
           })
         : null}
