@@ -61,6 +61,34 @@ function Dashboard({ date }) {
   return (
     <main>
       <h1>Dashboard</h1>
+      <div className="mt-2">
+        <button
+          className="mr-2 btn btn-primary"
+          onClick={() => {
+            history.push(`/dashboard?date=${previous(currentDate)}`);
+            setCurrentDate(previous(currentDate));
+          }}
+        >
+          Previous Day
+        </button>
+        <button
+          className="mr-2 btn btn-primary"
+          onClick={() => {
+            history.push("/dashboard");
+          }}
+        >
+          Today
+        </button>
+        <button
+        className="btn btn-primary"
+          onClick={() => {
+            history.push(`/dashboard?date=${next(currentDate)}`);
+            setCurrentDate(next(currentDate));
+          }}
+        >
+          Next Day
+        </button>
+      </div>
       <div className="d-md-flex mb-3">
         <h3 className="mb-0">Reservations for {currentDate}</h3>
       </div>
@@ -71,7 +99,9 @@ function Dashboard({ date }) {
               <FormatReservations
                 key={e.reservation_id}
                 reservation={e}
-                showButton={true}
+                showSeat={true}
+                showEdit={true}
+                showCancel={true}
               />
             ))
           : "No reservations today"}
@@ -86,33 +116,6 @@ function Dashboard({ date }) {
               />
             ))
           : "No tables"}
-      </div>
-      <div className="mt-2">
-        <button
-          className="mr-2"
-          onClick={() => {
-            history.push(`/dashboard?date=${previous(currentDate)}`);
-            setCurrentDate(previous(currentDate));
-          }}
-        >
-          Previous Day
-        </button>
-        <button
-          className="mr-2"
-          onClick={() => {
-            history.push("/dashboard");
-          }}
-        >
-          Today
-        </button>
-        <button
-          onClick={() => {
-            history.push(`/dashboard?date=${next(currentDate)}`);
-            setCurrentDate(next(currentDate));
-          }}
-        >
-          Next Day
-        </button>
       </div>
     </main>
   );

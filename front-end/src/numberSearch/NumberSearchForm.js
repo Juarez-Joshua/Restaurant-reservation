@@ -26,7 +26,7 @@ function NumberSearchForm({ initialForm , submitHandler}) {
           placeholder="Enter a customer's phone number"
           value={formData.mobile_number}
         ></input>
-        <button type="submit">submit</button>
+        <button type="submit" className="btn btn-info ml-3">submit</button>
       </form>
     </div>
   );

@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { formatAsTime } from "../utils/date-time";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
-function FormatReservations({ reservation, showButton }) {
+import ErrorAlert from "../layout/ErrorAlert";
+import axios from "axios";
+require("dotenv").config();
+
+function FormatReservations({ reservation, showSeat, showEdit, showCancel }) {
   const {
     reservation_id,
     first_name,
@@ -11,8 +15,32 @@ function FormatReservations({ reservation, showButton }) {
     people,
     status,
   } = reservation;
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const [error, setError] = useState(null);
+
+  const cancelReservationHandler = async () => {
+    const cancel = window.confirm(
+      "Do you want to cancel this reservation? This cannot be undone."
+    );
+    if (cancel) {
+      const abortController = new AbortController();
+      try {
+        await axios.put(`${BASE_URL}/reservations/${reservation_id}/status`, {
+          data: { status: "cancelled" },
+        });
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          const message = error.response.data.error;
+          setError({ message });
+        }
+        return () => abortController.abort();
+      }
+      window.location.reload(true);
+    }
+  };
   return (
     <div>
+      <ErrorAlert error={error} />
       <h6>Reservation for {first_name + " " + last_name}</h6>
       <p>time: {formatAsTime(reservation_time)}</p>
       <p>party size: {people}</p>
@@ -20,14 +48,36 @@ function FormatReservations({ reservation, showButton }) {
       <p data-reservation-id-status={reservation.reservation_id}>
         status: {status}
       </p>
-      {status === "booked" && showButton? (
+      {status === "booked" && showSeat ? (
         <Link
           to={`/reservations/${reservation_id}/seat`}
-          className="btn btn-primary"
+          className="btn btn-primary mr-2"
           href={`/reservations/${reservation_id}/seat`}
         >
           Seat
         </Link>
+      ) : (
+        ""
+      )}
+      {status === "booked" && showEdit ? (
+        <Link
+          to={`/reservations/${reservation_id}/edit`}
+          className="btn btn-secondary mr-2"
+          href={`/reservations/${reservation_id}/edit`}
+        >
+          Edit
+        </Link>
+      ) : (
+        ""
+      )}
+      {status === "booked" && showCancel ? (
+        <button
+          data-reservation-id-cancel={reservation.reservation_id}
+          className="btn btn-danger"
+          onClick={cancelReservationHandler}
+        >
+          Cancel
+        </button>
       ) : (
         ""
       )}

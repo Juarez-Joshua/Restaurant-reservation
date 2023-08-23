@@ -43,7 +43,7 @@ function NumberSearchHome() {
       {attemptedSearch && foundReservations.length > 0
         ? foundReservations.map((e) => {
             return (
-              <FormatReservations key={e.reservation_id} reservation={e} />
+              <FormatReservations key={e.reservation_id} reservation={e} showCancel={true} showEdit={true} />
             );
           })
         : null}
