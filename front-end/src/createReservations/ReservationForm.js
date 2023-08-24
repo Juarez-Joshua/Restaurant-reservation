@@ -55,11 +55,19 @@ function ReservationForm({ submitHandler, cancelHandler, initialForm }) {
     }
     return timeError;
   };
+  const validateMobile = () =>{
+    const noLetters = /^\d{3}-\d{3}-\d{4}$/.test(formData.mobile_number);
+    if(noLetters){
+      return false;
+    }else{
+      setError({message: "Phone number cannot contain letters"});
+      return true
+    }
+  }
   const validateData = () => {
-    let dataError = validateDate() || validateTime();
+    let dataError = validateDate() || validateTime() || validateMobile();
     return dataError;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateData()) {
