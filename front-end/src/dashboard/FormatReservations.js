@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { formatAsTime } from "../utils/date-time";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import ErrorAlert from "../layout/ErrorAlert";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import axios from "axios";
 require("dotenv").config();
 
@@ -17,6 +18,7 @@ function FormatReservations({ reservation, showSeat, showEdit, showCancel }) {
   } = reservation;
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
   const [error, setError] = useState(null);
+  const history = useHistory();
 
   const cancelReservationHandler = async () => {
     const cancel = window.confirm(
@@ -35,7 +37,7 @@ function FormatReservations({ reservation, showSeat, showEdit, showCancel }) {
         }
         return () => abortController.abort();
       }
-      window.location.reload(true);
+      history.push("/")
     }
   };
   return (
