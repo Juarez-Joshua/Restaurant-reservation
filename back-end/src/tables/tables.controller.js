@@ -9,6 +9,7 @@ const {
   seatTable,
   clearTable,
 } = require("./tables.service");
+const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 function hasData(req, res, next) {
   const { data } = req.body;
   if (!data) {
@@ -82,11 +83,11 @@ async function checkReservation(req, res, next) {
       status: 400,
       message: "Table doesn't have enough capacity",
     });
-  }else if(reservation.status === "seated"){
+  } else if (reservation.status === "seated") {
     next({
       status: 400,
-      message: "This reservation is already seated"
-    })
+      message: "This reservation is already seated",
+    });
   }
   next();
 }
@@ -143,20 +144,20 @@ async function seatReservation(req, res, next) {
   res.status(200).json(data);
 }
 async function finishTable(req, res, next) {
-  await updateReservationStatus(res.locals.table.reservation_id, "finished")
+  await updateReservationStatus(res.locals.table.reservation_id, "finished");
   await clearTable(res.locals.table.table_id);
   res.sendStatus(200);
 }
 module.exports = {
-  list,
-  create: [hasData, hasTableName, hasCapacity, create],
+  list: [asyncErrorBoundary(list)],
+  create: [hasData, hasTableName, hasCapacity, asyncErrorBoundary(create)],
   seatReservation: [
     hasData,
     hasReservationId,
     validTable,
     tableEmpty,
     checkReservation,
-    seatReservation,
+    asyncErrorBoundary(seatReservation),
   ],
-  finish: [validTable, tableOccupied, finishTable],
+  finish: [validTable, tableOccupied, asyncErrorBoundary(finishTable)],
 };

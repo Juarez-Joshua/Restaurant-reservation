@@ -7,7 +7,7 @@ const {
   searchForNumber,
   changeReservation,
 } = require("./reservations.service");
-
+const asyncErrorBoundary = require("../errors/asyncErrorBoundary")
 const VALID_PROPERTIES = [
   "first_name",
   "last_name",
@@ -185,7 +185,7 @@ async function updateReservation(req, res, next) {
   res.status(200).json({data})
 }
 module.exports = {
-  list: [hasQuery, list],
+  list: [hasQuery, asyncErrorBoundary(list)],
   create: [
     hasAllValidProperties,
     validateDateTimePeople,
@@ -193,14 +193,14 @@ module.exports = {
     inFuture,
     withinHours,
     statusIsBooked,
-    create,
+    asyncErrorBoundary(create),
   ],
   read: [validReservationId, read],
   updateStatus: [
     validReservationId,
     reservationUnfinished,
     validUpdateStatus,
-    updateStatus,
+    asyncErrorBoundary(updateStatus),
   ],
   updateReservation: [
     validReservationId,
@@ -208,6 +208,6 @@ module.exports = {
     validateDateTimePeople,
     isNotTuesday,
     inFuture,
-    updateReservation,
+    asyncErrorBoundary(updateReservation),
   ],
 };
