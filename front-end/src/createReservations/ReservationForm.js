@@ -56,7 +56,7 @@ function ReservationForm({ submitHandler, cancelHandler, initialForm }) {
     return timeError;
   };
   const validateMobile = () =>{
-    const noLetters = /^\d{3}-\d{3}-\d{4}$/.test(formData.mobile_number);
+    const noLetters = /^[0-9-]+$/.test(formData.mobile_number);
     if(noLetters){
       return false;
     }else{
