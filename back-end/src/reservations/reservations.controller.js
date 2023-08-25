@@ -63,9 +63,9 @@ function validateDateTimePeople(req, res, next) {
   next();
 }
 function isNotTuesday(_req, res, next) {
-  const { reservation_date } = res.locals.data;
-  const inputDate = new Date(reservation_date);
-  if (inputDate.getDay() === 1) {
+  const { reservation_date, reservation_time } = res.locals.data;
+  const inputDate = new Date(`${reservation_date}t${reservation_time}`);
+  if (inputDate.getDay() === 2) {
     next({
       status: 400,
       message: "We are closed on Tuesdays",
