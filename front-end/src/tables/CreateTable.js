@@ -14,7 +14,6 @@ function CreateTable() {
     capacity: 0,
   };
   const submitHandler = async (data) => {
-    const abortController = new AbortController();
     try {
       await axios.post(`${BASE_URL}/tables`, {
         data,
@@ -26,7 +25,6 @@ function CreateTable() {
         setError({ message });
       }
     }
-    return () => abortController.abort();
   };
   const cancelHandler = () => {
     history.goBack();
